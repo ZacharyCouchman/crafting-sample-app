@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Address, Collection, NFT, Recipe } from "../types";
+import { Address, Collection, Token, Recipe } from "../types";
 import { useImmutableProvider, usePassportProvider } from "@/app/context";
 import { ImmutableERC1155Abi } from "@imtbl/contracts";
 import { Contract } from "ethers";
@@ -55,14 +55,14 @@ export function useCollectionItemsQuery({
   collection: Address;
   owner: Address | undefined;
 }): {
-  data: NFT[] | undefined;
+  data: Token[] | undefined;
   error: any;
   isLoading: boolean;
 } {
   const { blockchainDataClient } = useImmutableProvider();
 
-  return useQuery<any, any, NFT[], any>({
-    queryKey: ["collection_items"],
+  return useQuery<any, any, Token[], any>({
+    queryKey: ["collection_items", collection],
     refetchInterval: 1000 * 2,
     enabled: !!owner && !!collection,
     queryFn: async () =>
@@ -74,9 +74,12 @@ export function useCollectionItemsQuery({
     select: (data) =>
       data.result.map(
         (nft: any) =>
-          <NFT>{
+          <Token>{
+            type: nft.type,
             tokenId: nft.token_id,
             value: nft.balance,
+            image: nft.image,
+            name: nft.name
           }
       ),
   });
@@ -115,4 +118,73 @@ export function useApprovalQuery(): {
   return {
     getIsApprovedForAll,
   };
+}
+
+export function useAllowanceQuery(): {
+  getAllowance: ({
+    tokenAddress,
+    operator,
+  }: {
+    tokenAddress: Address;
+    operator: Address;
+  }) => Promise<bigint>;
+} {
+  const { web3Provider, walletAddress } = usePassportProvider();
+
+  const getAllowance = async ({
+    tokenAddress,
+    operator
+  }: {
+    tokenAddress: Address;
+    operator: Address;
+  }): Promise<bigint> => {
+    if (!walletAddress) {
+      throw new Error("User is not authenticated");
+    }
+    const contract = new Contract(
+      tokenAddress as string,
+      ["function allowance(address,address) view returns (uint256)"],
+      web3Provider?.getSigner()
+    );
+    const res = await contract.allowance(walletAddress as `0x${string}`, operator as `0x${string}`);
+    console.log("ALLOWANCE res", res)
+    return BigInt(res);
+  };
+
+  return {
+    getAllowance,
+  };
+}
+
+export function useBalanceQuery({
+  tokenAddress
+}: {
+  tokenAddress: Address
+}) {
+  const { blockchainDataClient } = useImmutableProvider();
+  const { web3Provider, walletAddress } = usePassportProvider();
+
+  const { data } = useQuery({
+    queryKey: ['balances'],
+    refetchInterval: 1000 * 10,
+    queryFn: async () => {
+      const token = await blockchainDataClient.getToken({
+        chainName: 'imtbl-zkevm-testnet',
+        contractAddress: tokenAddress
+      });
+      const balanceHex = await web3Provider!.provider.request!({
+        method: 'eth_call', params: [{
+          to: tokenAddress,
+          data: `0x70a08231${walletAddress!.slice(2).padStart(64, "0")}`
+        },
+          "latest"
+        ]
+      })
+      const balance = BigInt(balanceHex);
+
+      return { token: token.result, balance: balance.toString(), formattedBalance: (balance / BigInt(10 ** (token?.result?.decimals ?? 18))).toString() }
+    }
+  })
+
+  return data;
 }

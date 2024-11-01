@@ -1,25 +1,28 @@
 export type Recipe = {
   id: number;
   name: string;
-  inputs: NFT[];
-  outputs: NFT[];
+  inputs: Token[];
+  outputs: Token[];
 }
 
-export type NFT = {
+export type Token = {
+  type: 'ERC20' | 'ERC721' | 'ERC1155'
   tokenId: string;
   value: string;
+  image: string;
+  name: string;
 }
 
-export const nftToName = (nft: NFT): string => {
-  switch (nft.tokenId.toString()) {
+export const nftToName = (nft: Token): string => {
+  switch (nft.tokenId?.toString()) {
     case '1':
       return 'Wood';
     case '2':
-      return 'Metal';
+      return 'Stone';
     case '3':
-      return 'Spear';
+      return 'Axe';
     default:
-      return 'Unknown';
+      return nft?.name ?? 'Gold';
   }
 }
 
@@ -47,4 +50,5 @@ export type Collection = {
 export type Message = {
   status: 'success' | 'fatal';
   message: string;
+  link?: string;
 }

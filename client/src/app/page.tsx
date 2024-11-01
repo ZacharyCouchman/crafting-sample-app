@@ -5,6 +5,8 @@ import Recipes from "./components/Recipes/Recipes";
 import Inventory from "./components/Inventory/Inventory";
 import { useCollectionQuery } from "./hooks";
 import Layout from "@/app/components/Layout/Layout";
+import Balance from "./components/Balance/Balance";
+import { GOLDEN_AXE_ADDRESS } from "./contants";
 
 export default function Home() {
   const { data: collection, error, isLoading } = useCollectionQuery();
@@ -24,7 +26,21 @@ export default function Home() {
         {collection && (
           <>
             <Recipes collection={collection} />
-            <Inventory collection={collection} />
+            <Box sx={{display: 'flex', flexDirection: 'column', paddingLeft: "base.spacing.x8"}}>
+              <Balance />
+              <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                gap: "base.spacing.x8",
+                paddingTop: "base.spacing.x8",
+              }}
+            >
+              <Inventory collection={collection} heading="Resources" />
+              <Inventory collection={{address: GOLDEN_AXE_ADDRESS}} heading="Rare items" />
+              </Box>
+            </Box>
+            
           </>
         )}
       </Box>

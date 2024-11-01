@@ -4,11 +4,24 @@ import { Collection, CraftResult, Recipe } from './types';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(private readonly appService: AppService) { }
 
   @Get('/collection')
-  getCollection(): Collection {
-    return { address: process.env.COLLECTION_ADDRESS as `0x${string}` };
+  getCollection(): Collection[] {
+    return [
+      {
+        type: 'ERC1155',
+        address: process.env.ERC20_ADDRESS as `0x${string}`,
+      },
+      {
+        type: 'ERC1155',
+        address: process.env.ERC1155_COLLECTION_ADDRESS as `0x${string}`,
+      },
+      {
+        type: 'ERC721',
+        address: process.env.ERC721_COLLECTION_ADDRESS as `0x${string}`,
+      },
+    ];
   }
 
   @Get('/recipes')

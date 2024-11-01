@@ -56,6 +56,9 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
           ))}
         <Box
           sx={{
+            position: 'absolute',
+            top: 'base.spacing.x4',
+            right: 'base.spacing.x4',
             padding: "base.spacing.x4",
           }}
         >

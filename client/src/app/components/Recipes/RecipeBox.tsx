@@ -14,8 +14,11 @@ import {
   useApprovalQuery,
   useSetApprovalAllTx,
 } from '@/app/hooks';
-import { usePassportProvider, useMessageProvider } from '@/app/context';
+import { useMessageProvider } from '@/app/context';
 import { useState } from 'react';
+import { useAllowanceQuery } from '@/app/hooks/useQuery';
+import { useSetApproveSpendingTx } from '@/app/hooks/useCraft';
+import { CRAFTING_GOLD_TOKEN_ADDRESS } from '@/app/contants';
 
 export default function RecipeBox({
   recipe,
@@ -28,6 +31,8 @@ export default function RecipeBox({
   const { sendCraftTx } = useCraftTx();
   const { getIsApprovedForAll } = useApprovalQuery();
   const { setApprovalForAll } = useSetApprovalAllTx();
+  const { getAllowance } = useAllowanceQuery();
+  const { setApproveSpending } = useSetApproveSpendingTx();
   const [isLoading, setIsLoading] = useState(false);
   const { addMessage } = useMessageProvider();
 
@@ -41,6 +46,23 @@ export default function RecipeBox({
         operator: res.multicallerAddress,
       });
 
+      if(recipe.inputs.some((input) => input.type === 'ERC20')) {
+        const allowance = await getAllowance({
+          tokenAddress: CRAFTING_GOLD_TOKEN_ADDRESS, 
+          operator: res.multicallerAddress
+        });
+  
+        console.log("allowance", allowance)
+  
+        if(allowance < BigInt(5*10**18)) {
+          await setApproveSpending({
+            tokenAddress: CRAFTING_GOLD_TOKEN_ADDRESS,
+            operator: res.multicallerAddress,
+            amount: BigInt(5*10**18)
+          })
+        }
+      }
+
       if (!isApproved) {
         await setApprovalForAll({
           collection,
@@ -48,7 +70,9 @@ export default function RecipeBox({
         });
       }
 
-      await sendCraftTx({
+      console.log(res.calls)
+
+      const txHash = await sendCraftTx({
         multicallerAddress: res.multicallerAddress,
         executeArgs: {
           multicallSigner: res.multicallSigner,
@@ -61,6 +85,7 @@ export default function RecipeBox({
       addMessage({
         status: 'success',
         message: 'Crafting succeeded!',
+        link: `https://explorer.testnet.immutable.com/tx/${txHash}`
       });
     } catch (e: any) {
       console.error(e);
@@ -101,7 +126,7 @@ export default function RecipeBox({
           {recipe.inputs.length > 0 ? (
             <Stack>
               {recipe.inputs.map((input) => (
-                <MenuItem key={input.tokenId} emphasized size="small">
+                <MenuItem key={`${input.type}-${input.tokenId}`} emphasized size="small">
                   <MenuItem.Label>{nftToName(input)}</MenuItem.Label>
                   <MenuItem.Caption>{input.value}</MenuItem.Caption>
                 </MenuItem>
@@ -120,7 +145,7 @@ export default function RecipeBox({
           {recipe.outputs.length > 0 ? (
             <Stack>
               {recipe.outputs.map((output) => (
-                <MenuItem key={output.tokenId} emphasized size="small">
+                <MenuItem key={`${output.type}-${output.value}`} emphasized size="small">
                   <MenuItem.Label>{nftToName(output)}</MenuItem.Label>
                   <MenuItem.Caption>{output.value}</MenuItem.Caption>
                 </MenuItem>

@@ -63,7 +63,7 @@ export function useCraftTx(): {
   }: {
     multicallerAddress: Address;
     executeArgs: ExecuteArgs;
-  }) => Promise<void>;
+  }) => Promise<string>;
 } {
   const { web3Provider } = usePassportProvider();
 
@@ -87,6 +87,7 @@ export function useCraftTx(): {
     if (receipt.status === 0) {
       throw new Error("Craft failed");
     }
+    return receipt!.transactionHash
   };
 
   return {
@@ -123,5 +124,41 @@ export function useSetApprovalAllTx(): {
 
   return {
     setApprovalForAll,
+  };
+}
+
+export function useSetApproveSpendingTx(): {
+  setApproveSpending: ({
+    tokenAddress,
+    operator,
+    amount,
+  }: {
+    tokenAddress: Address;
+    operator: Address;
+    amount: BigInt
+  }) => Promise<void>;
+} {
+  const { web3Provider } = usePassportProvider();
+
+  const setApproveSpending = async ({
+    tokenAddress,
+    operator,
+    amount,
+  }: {
+    tokenAddress: Address;
+    operator: Address;
+    amount: BigInt
+  }) => {
+    const contract = new Contract(tokenAddress as string, ["function approve(address,uint256)"], web3Provider?.getSigner());
+    const tx = await contract.approve(operator, amount);
+    const receipt = await web3Provider?.waitForTransaction(tx.hash);
+    console.log(receipt);
+    if (receipt.status === 0) {
+      throw new Error("Set approve failed");
+    }
+  };
+
+  return {
+    setApproveSpending,
   };
 }
