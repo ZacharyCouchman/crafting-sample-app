@@ -84,7 +84,7 @@ export function useCraftTx(): {
     );
     const receipt = await web3Provider?.waitForTransaction(tx.hash);
     console.log(receipt);
-    if (receipt.status === 0) {
+    if (receipt!.status === 0) {
       throw new Error("Craft failed");
     }
     return receipt!.transactionHash
@@ -117,7 +117,7 @@ export function useSetApprovalAllTx(): {
     const tx = await contract.setApprovalForAll(operator, true);
     const receipt = await web3Provider?.waitForTransaction(tx.hash);
     console.log(receipt);
-    if (receipt.status === 0) {
+    if (receipt!.status === 0) {
       throw new Error("Set approval failed");
     }
   };
@@ -153,7 +153,7 @@ export function useSetApproveSpendingTx(): {
     const tx = await contract.approve(operator, amount);
     const receipt = await web3Provider?.waitForTransaction(tx.hash);
     console.log(receipt);
-    if (receipt.status === 0) {
+    if (receipt!.status === 0) {
       throw new Error("Set approve failed");
     }
   };

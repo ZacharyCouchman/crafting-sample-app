@@ -58,7 +58,7 @@ export function PassportProvider({ children }: { children: React.ReactNode }) {
     await passportInstance.logout();
     setWeb3Provider(undefined);
     setWalletAddress(undefined);
-    setUserProfile(undefined);
+    setUserProfile(null);
     setAuthenticated(false);
     setReady(true)
   }, []);
@@ -92,7 +92,7 @@ export function PassportProvider({ children }: { children: React.ReactNode }) {
         const accessToken = await passportInstance.getAccessToken();
         if (!!accessToken && !!idToken) {
           setAuthenticated(true);
-          const accounts = await web3Provider?.provider?.request({ method: "eth_requestAccounts" });
+          const accounts = await web3Provider!.provider?.request!({ method: "eth_requestAccounts" });
           setWalletAddress(accounts[0]);
           setReady(true);
         } else {
