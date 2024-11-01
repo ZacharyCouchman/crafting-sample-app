@@ -9,7 +9,7 @@ import Balance from "./components/Balance/Balance";
 import { GOLDEN_AXE_ADDRESS } from "./contants";
 
 export default function Home() {
-  const { data: collection, error, isLoading } = useCollectionQuery();
+  const { data: collections, error, isLoading } = useCollectionQuery();
 
   return (
     <Layout>
@@ -23,9 +23,9 @@ export default function Home() {
       >
         {isLoading && <Heading size="xSmall">Loading Collection...</Heading>}
         {error && <Heading size="xSmall">Error: {error.message}</Heading>}
-        {collection && (
+        {collections && collections.length > 0 && (
           <>
-            <Recipes collection={collection} />
+            <Recipes collections={collections} />
             <Box sx={{display: 'flex', flexDirection: 'column', paddingLeft: "base.spacing.x8"}}>
               <Balance />
               <Box
@@ -36,8 +36,8 @@ export default function Home() {
                 paddingTop: "base.spacing.x8",
               }}
             >
-              <Inventory collection={collection} heading="Resources" />
-              <Inventory collection={{address: GOLDEN_AXE_ADDRESS}} heading="Rare items" />
+              <Inventory collection={collections.find((col) => col.type === 'ERC1155')!} heading="Resources" />
+              <Inventory collection={collections.find((col) => col.type === 'ERC721')!} heading="Rare items" />
               </Box>
             </Box>
             

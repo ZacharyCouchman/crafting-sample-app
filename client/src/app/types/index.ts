@@ -44,6 +44,7 @@ export type CraftResult = {
 export type Address = `0x${string}`
 
 export type Collection = {
+  type: 'ERC20' | 'ERC1155' | 'ERC721',
   address: Address;
 }
 

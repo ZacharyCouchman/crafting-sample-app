@@ -7,20 +7,24 @@ import { Contract } from "ethers";
 const serverURL = process.env.NEXT_PUBLIC_SERVER_URL;
 
 export function useCollectionQuery(): {
-  data: Collection | undefined;
+  data: Collection[] | undefined;
   error: any;
   isLoading: boolean;
 } {
-  return useQuery<any, any, Collection, any>({
-    queryKey: ["collection"],
+  return useQuery<any, any, Collection[], any>({
+    queryKey: ["collections"],
     queryFn: async () => {
       const response = await fetch(`${serverURL}/collection`);
       return response.json();
     },
-    select: (data) =>
-      <Collection>{
-        address: data.address,
-      },
+    select: (data) => {
+      console.log(data);
+      return data.map((collection: any) => <Collection>{
+        type: collection.type,
+        address: collection.address,
+      })
+    }
+    ,
   });
 }
 

@@ -3,7 +3,7 @@ import { Box, Heading, Stack } from "@biom3/react";
 import RecipeBox from "./RecipeBox";
 import { Collection } from "@/app/types";
 
-export default function Recipes({collection}: {collection: Collection}) {
+export default function Recipes({collections}: {collections: Collection[]}) {
   const { data, error, isLoading } = useRecipesQuery();
 
   if (isLoading) {
@@ -20,7 +20,7 @@ export default function Recipes({collection}: {collection: Collection}) {
       <Heading>Recipes</Heading>
       <Stack gap='base.spacing.x4'>
         {data?.map((recipe) => (
-          <RecipeBox key={recipe.id} recipe={recipe} collection={collection} />
+          <RecipeBox key={recipe.id} recipe={recipe} collections={collections} />
         ))}
       </Stack>
     </Box>

@@ -2,109 +2,113 @@ import { Injectable } from '@nestjs/common';
 import { CraftResult, Recipe } from './types';
 import { v4 as uuidv4 } from 'uuid';
 import { ethers } from 'ethers';
+import { ConfigService } from '@nestjs/config';
+import { ConfigProps } from './config';
 
-const recipeMap: Map<string, Recipe> = new Map<string, Recipe>([
-  [
-    '1',
-    {
-      id: 1,
-      name: 'Craft wood',
-      inputs: [],
-      outputs: [
-        {
-          type: 'ERC1155',
-          address: process.env.ERC1155_COLLECTION_ADDRESS as `0x${string}`,
-          tokenId: 1,
-          value: 10,
-        },
-      ],
-    },
-  ],
-  [
-    '2',
-    {
-      id: 2,
-      name: 'Craft stone',
-      inputs: [],
-      outputs: [
-        {
-          type: 'ERC1155',
-          address: process.env.ERC1155_COLLECTION_ADDRESS as `0x${string}`,
-          tokenId: 2,
-          value: 2,
-        },
-      ],
-    },
-  ],
-  [
-    '3',
-    {
-      id: 3,
-      name: 'Craft axe',
-      inputs: [
-        {
-          type: 'ERC1155',
-          address: process.env.ERC1155_COLLECTION_ADDRESS as `0x${string}`,
-          tokenId: 1,
-          value: 10,
-        },
-        {
-          type: 'ERC1155',
-          address: process.env.ERC1155_COLLECTION_ADDRESS as `0x${string}`,
-          tokenId: 2,
-          value: 2,
-        },
-      ],
-      outputs: [
-        {
-          type: 'ERC1155',
-          address: process.env.ERC1155_COLLECTION_ADDRESS as `0x${string}`,
-          tokenId: 3,
-          value: 1,
-        },
-      ],
-    },
-  ],
-  [
-    '4',
-    {
-      id: 4,
-      name: 'Craft Golden Axe',
-      inputs: [
-        {
-          type: 'ERC20',
-          address: process.env.ERC20_ADDRESS as `0x${string}`,
-          value: 5,
-        },
-        {
-          type: 'ERC1155',
-          address: process.env.ERC1155_COLLECTION_ADDRESS as `0x${string}`,
-          tokenId: 3,
-          value: 1,
-        },
-      ],
-      outputs: [
-        {
-          type: 'ERC721',
-          address: process.env.ERC721_COLLECTION_ADDRESS as `0x${string}`,
-          value: 1,
-        },
-      ],
-    },
-  ],
-]);
+const recipeMap = (config: ConfigService<ConfigProps>) =>
+  new Map<string, Recipe>([
+    [
+      '1',
+      {
+        id: 1,
+        name: 'Craft wood',
+        inputs: [],
+        outputs: [
+          {
+            type: 'ERC1155',
+            address: config.get<string>('erc1155Address') as `0x${string}`,
+            tokenId: 1,
+            value: 10,
+          },
+        ],
+      },
+    ],
+    [
+      '2',
+      {
+        id: 2,
+        name: 'Craft stone',
+        inputs: [],
+        outputs: [
+          {
+            type: 'ERC1155',
+            address: config.get<string>('erc1155Address') as `0x${string}`,
+            tokenId: 2,
+            value: 2,
+          },
+        ],
+      },
+    ],
+    [
+      '3',
+      {
+        id: 3,
+        name: 'Craft axe',
+        inputs: [
+          {
+            type: 'ERC1155',
+            address: config.get<string>('erc1155Address') as `0x${string}`,
+            tokenId: 1,
+            value: 10,
+          },
+          {
+            type: 'ERC1155',
+            address: config.get<string>('erc1155Address') as `0x${string}`,
+            tokenId: 2,
+            value: 2,
+          },
+        ],
+        outputs: [
+          {
+            type: 'ERC1155',
+            address: config.get<string>('erc1155Address') as `0x${string}`,
+            tokenId: 3,
+            value: 1,
+          },
+        ],
+      },
+    ],
+    [
+      '4',
+      {
+        id: 4,
+        name: 'Craft Golden Axe',
+        inputs: [
+          {
+            type: 'ERC20',
+            address: config.get<string>('erc20Address') as `0x${string}`,
+            value: 5,
+          },
+          {
+            type: 'ERC1155',
+            address: config.get<string>('erc1155Address') as `0x${string}`,
+            tokenId: 3,
+            value: 1,
+          },
+        ],
+        outputs: [
+          {
+            type: 'ERC721',
+            address: config.get<string>('erc721Address') as `0x${string}`,
+            value: 1,
+          },
+        ],
+      },
+    ],
+  ]);
 
 @Injectable()
 export class AppService {
+  constructor(private readonly config: ConfigService<ConfigProps>) { }
   getRecipes(): Recipe[] {
-    return Array.from(recipeMap.values());
+    return Array.from(recipeMap(this.config).values());
   }
 
   async postCraft(
     playerAddress: `0x${string}`,
     recipeId: number,
   ): Promise<CraftResult> {
-    const recipe = recipeMap.get(recipeId.toString());
+    const recipe = recipeMap(this.config).get(recipeId.toString());
     if (!recipe) {
       throw new Error('Recipe not found');
     }
@@ -120,7 +124,7 @@ export class AppService {
       switch (input.type) {
         case 'ERC20': {
           calls.push({
-            target: input.address, //process.env.COLLECTION_ADDRESS as `0x${string}`,
+            target: input.address,
             functionSignature: 'burnFrom(address,uint256)',
             functionArgs: [
               playerAddress.toString(),
@@ -165,7 +169,7 @@ export class AppService {
         }
         case 'ERC721': {
           calls.push({
-            target: output.address, //process.env.COLLECTION_ADDRESS as `0x${string}`,
+            target: output.address,
             functionSignature: 'safeMintByQuantity(address,uint256)',
             functionArgs: [playerAddress.toString(), output.value.toString()],
             data: ethers.AbiCoder.defaultAbiCoder().encode(
@@ -178,7 +182,7 @@ export class AppService {
         }
         case 'ERC1155': {
           calls.push({
-            target: output.address, //process.env.COLLECTION_ADDRESS as `0x${string}`,
+            target: output.address,
             functionSignature: 'safeMint(address,uint256,uint256,bytes)',
             functionArgs: [
               playerAddress.toString(),
@@ -202,9 +206,9 @@ export class AppService {
 
     const payload = {
       multi_caller: {
-        address: process.env.MULTICALLER_ADDRESS as `0x${string}`,
-        name: process.env.MULTICALLER_NAME as string,
-        version: process.env.MULTICALLER_VERSION as string,
+        address: this.config.get<string>('multicallerAddress'),
+        name: this.config.get<string>('multicallerName'),
+        version: this.config.get<string>('multicallerVersion'),
       },
       reference_id: craftId,
       calls: calls.map((call) => ({
@@ -215,12 +219,14 @@ export class AppService {
       expires_at: new Date(deadline * 1000).toISOString(),
     };
     const res = await fetch(
-      `${process.env.IMMUTABLE_API_URL}/v1/chains/${process.env.CHAIN_NAME}/crafting/sign`,
+      `${this.config.get<string>(
+        'immutableApiUrl',
+      )}/v1/chains/${this.config.get<string>('chainName')}/crafting/sign`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-immutable-api-key': process.env.IMMUTABLE_API_KEY as string,
+          'x-immutable-api-key': this.config.get<string>('immutableApiKey'),
         },
         body: JSON.stringify(payload),
       },
@@ -230,7 +236,9 @@ export class AppService {
     console.log(sigData);
 
     return {
-      multicallerAddress: process.env.MULTICALLER_ADDRESS as `0x${string}`,
+      multicallerAddress: this.config.get<string>(
+        'multicallerAddress',
+      ) as `0x${string}`,
       multicallSigner: sigData.signer_address,
       reference: reference,
       calls: calls,

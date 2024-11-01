@@ -22,10 +22,10 @@ import { CRAFTING_GOLD_TOKEN_ADDRESS } from '@/app/contants';
 
 export default function RecipeBox({
   recipe,
-  collection,
+  collections,
 }: {
   recipe: Recipe;
-  collection: Collection;
+  collections: Collection[];
 }) {
   const { submitCraft } = useSubmitCraft();
   const { sendCraftTx } = useCraftTx();
@@ -36,27 +36,29 @@ export default function RecipeBox({
   const [isLoading, setIsLoading] = useState(false);
   const { addMessage } = useMessageProvider();
 
+  const erc20Contract = collections.find((collection) => collection.type === 'ERC20')!;
+  const erc1155Collection = collections.find((collection) => collection.type === 'ERC1155')!;
+  const erc721Collection = collections.find((collection) => collection.type === 'ERC721')!;
+
   const execute = async (recipe: Recipe) => {
     try {
       setIsLoading(true);
       const res = await submitCraft(recipe.id);
 
       const isApproved = await getIsApprovedForAll({
-        collection,
+        collection: erc1155Collection,
         operator: res.multicallerAddress,
       });
 
       if(recipe.inputs.some((input) => input.type === 'ERC20')) {
         const allowance = await getAllowance({
-          tokenAddress: CRAFTING_GOLD_TOKEN_ADDRESS, 
+          tokenAddress: erc20Contract.address, 
           operator: res.multicallerAddress
         });
   
-        console.log("allowance", allowance)
-  
         if(allowance < BigInt(5*10**18)) {
           await setApproveSpending({
-            tokenAddress: CRAFTING_GOLD_TOKEN_ADDRESS,
+            tokenAddress: erc20Contract.address,
             operator: res.multicallerAddress,
             amount: BigInt(5*10**18)
           })
@@ -65,12 +67,10 @@ export default function RecipeBox({
 
       if (!isApproved) {
         await setApprovalForAll({
-          collection,
+          collection: erc1155Collection,
           operator: res.multicallerAddress,
         });
       }
-
-      console.log(res.calls)
 
       const txHash = await sendCraftTx({
         multicallerAddress: res.multicallerAddress,
