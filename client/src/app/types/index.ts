@@ -13,17 +13,21 @@ export type Token = {
   name: string;
 }
 
-export const nftToName = (nft: Token): string => {
-  switch (nft.tokenId?.toString()) {
-    case '1':
-      return 'Wood';
-    case '2':
-      return 'Stone';
-    case '3':
-      return 'Axe';
-    default:
-      return nft?.name ?? 'Gold';
-  }
+export const tokenToName = (nft: Token): string => {
+  if (nft.type === 'ERC1155') {
+    switch (nft.tokenId?.toString()) {
+      case '1':
+        return 'Wood';
+      case '2':
+        return 'Stone';
+      case '3':
+        return 'Axe';
+      default:
+        return '';
+    }
+  } else if (nft.type === 'ERC20') {
+    return 'Gold'
+  } else return 'Golden Axe'
 }
 
 export type Call = {

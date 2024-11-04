@@ -1,5 +1,5 @@
 import { useCollectionItemsQuery } from "@/app/hooks/useQuery";
-import { Collection, nftToName } from "@/app/types";
+import { Collection, tokenToName } from "@/app/types";
 import { usePassportProvider } from "@/app/context";
 import { Body, Box, Caption, Card, Grid, Heading } from "@biom3/react";
 import { useImagePreload } from "@/app/hooks/useImagePreload";
@@ -41,7 +41,7 @@ export default function Inventory({ collection, heading }: { collection: Collect
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img alt='img' src={nft.image} style={{objectFit: 'cover', borderRadius: '8px'}} width={'100%'} />
             <Box sx={{padding: 'base.spacing.x1', display: 'flex', flexDirection: 'column', gap:'base.spacing.x1'}}>
-              <Heading size={'xSmall'}>{nftToName(nft)}</Heading>
+              <Heading size={'xSmall'}>{tokenToName(nft)}</Heading>
               <Caption>{nft.value}</Caption>
               <Body size={'small'} sx={{wordBreak: 'break-all'}}>Token {nft.tokenId}</Body>
             </Box>

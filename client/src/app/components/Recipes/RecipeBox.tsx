@@ -7,7 +7,7 @@ import {
   Stack,
   LoadingOverlay,
 } from '@biom3/react';
-import { Collection, nftToName, Recipe } from '@/app/types';
+import { Collection, tokenToName, Recipe } from '@/app/types';
 import {
   useSubmitCraft,
   useCraftTx,
@@ -127,7 +127,7 @@ export default function RecipeBox({
             <Stack>
               {recipe.inputs.map((input) => (
                 <MenuItem key={`${input.type}-${input.tokenId}`} emphasized size="small">
-                  <MenuItem.Label>{nftToName(input)}</MenuItem.Label>
+                  <MenuItem.Label>{tokenToName(input)}</MenuItem.Label>
                   <MenuItem.Caption>{input.value}</MenuItem.Caption>
                 </MenuItem>
               ))}
@@ -146,7 +146,7 @@ export default function RecipeBox({
             <Stack>
               {recipe.outputs.map((output) => (
                 <MenuItem key={`${output.type}-${output.value}`} emphasized size="small">
-                  <MenuItem.Label>{nftToName(output)}</MenuItem.Label>
+                  <MenuItem.Label>{tokenToName(output)}</MenuItem.Label>
                   <MenuItem.Caption>{output.value}</MenuItem.Caption>
                 </MenuItem>
               ))}
