@@ -69,17 +69,16 @@ export function useCollectionItemsQuery({
     queryKey: ["collection_items", collection],
     refetchInterval: 1000 * 2,
     enabled: !!owner && !!collection,
-    queryFn: async () =>
-      blockchainDataClient.listNFTsByAccountAddress({
-        chainName: "imtbl-zkevm-testnet",
-        accountAddress: owner!,
-        contractAddress: collection,
-      }),
+    queryFn: async () => blockchainDataClient.listNFTsByAccountAddress({
+      chainName: "imtbl-zkevm-testnet",
+      accountAddress: owner!,
+      contractAddress: collection,
+    }),
     select: (data) =>
       data.result.map(
         (nft: any) =>
           <Token>{
-            type: nft.type,
+            type: nft.contract_type,
             tokenId: nft.token_id,
             value: nft.balance,
             image: nft.image,
