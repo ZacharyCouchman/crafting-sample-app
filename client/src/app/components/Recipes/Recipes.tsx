@@ -16,6 +16,7 @@ export default function Recipes({collections}: {collections: Collection[]}) {
       display: 'flex',
       flexDirection: 'column',
       gap: 'base.spacing.x4',
+      minWidth: '300px',
     }}>
       <Heading>Recipes</Heading>
       <Stack gap='base.spacing.x4'>

@@ -3,8 +3,18 @@ import { Box, Logo, Heading, Button, EllipsizedText, LoadingOverlay, Body } from
 import { useState } from "react";
 
 export default function SideMenu() {
-  const { ready, authenticated, userProfile, walletAddress, logout } = usePassportProvider();
-  const [loadingMessage, setLoadingMessage] = useState<"Logging out" | undefined>();
+  const { ready, authenticated, userProfile, walletAddress, login, logout } = usePassportProvider();
+  const [loadingMessage, setLoadingMessage] = useState<string | undefined>();
+
+
+  const onLogin = async () => {
+    setLoadingMessage("Logging in");
+    try {
+      await login();
+    } finally {
+      setLoadingMessage(undefined);
+    }
+  };
 
   const onLogout = async () => {
     try {
@@ -57,6 +67,14 @@ export default function SideMenu() {
             <Button onClick={onLogout}>Logout</Button>
           </>
         )}
+        {!authenticated && (
+            <Box sx={{ padding: "base.spacing.x4" }}>
+              <Button onClick={onLogin} variant="primary" sx={{ background: "base.gradient.1" }}>
+                <Button.Logo logo="PassportSymbol" />
+                Login with Passport
+              </Button>
+            </Box>
+          )}
       </Box>
       <LoadingOverlay visible={!!loadingMessage}>
         <LoadingOverlay.Content>

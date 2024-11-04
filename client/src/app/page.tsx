@@ -16,9 +16,9 @@ export default function Home() {
       <Box
         sx={{
           display: "flex",
-          flexDirection: "row",
+          flexDirection: ["column", "row"],
           gap: "base.spacing.x8",
-          padding: "base.spacing.x8",
+          padding: ["base.spacing.x4", "base.spacing.x8"],
         }}
       >
         {isLoading && <Heading size="xSmall">Loading Collection...</Heading>}
@@ -26,12 +26,12 @@ export default function Home() {
         {collections && collections.length > 0 && (
           <>
             <Recipes collections={collections} />
-            <Box sx={{display: 'flex', flexDirection: 'column', paddingLeft: "base.spacing.x8"}}>
+            <Box sx={{display: 'flex', flexDirection: 'column', paddingLeft: ["0px", "base.spacing.x8"]}}>
               <Balance />
               <Box
               sx={{
                 display: "flex",
-                flexDirection: "row",
+                flexDirection: ["column", "row"],
                 gap: "base.spacing.x8",
                 paddingTop: "base.spacing.x8",
               }}

@@ -18,14 +18,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
     }
   }, [ready, loadingMessage]);
 
-  const onLogin = async () => {
-    setLoadingMessage("Logging in");
-    try {
-      await login();
-    } finally {
-      setLoadingMessage(undefined);
-    }
-  };
+  
 
   return (
     <Box
@@ -46,14 +39,7 @@ export default function Layout({ children }: Readonly<{ children: React.ReactNod
         {ready &&
           (authenticated ? (
             <Box>{children}</Box>
-          ) : (
-            <Box sx={{ padding: "base.spacing.x4" }}>
-              <Button onClick={onLogin} variant="primary" sx={{ background: "base.gradient.1" }}>
-                <Button.Logo logo="PassportSymbol" />
-                Login with Passport
-              </Button>
-            </Box>
-          ))}
+          ) : null)}
         <Box
           sx={{
             position: 'absolute',

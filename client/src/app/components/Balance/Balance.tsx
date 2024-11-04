@@ -12,7 +12,7 @@ function Balance() {
         flexDirection: "row",
         alignItems: "center",
         gap: "base.spacing.x4",
-        width: "450px",
+        width: ["100%", "450px"],
       }}
     >
       <FramedImage 
