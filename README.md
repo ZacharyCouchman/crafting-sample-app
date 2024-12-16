@@ -6,25 +6,30 @@ The client uses Next.js and React to provide a simple UI for the user to interac
 
 ## Recipes
 
-Crafting recipes refer to a description of the expected inputs and outputs of a particular crafting transaction. In this guide, we will be demonstrating a common gameplay mechanic where a player will exchange consumable base ingredients, i.e. `wood` and `metal`, for a weapon which can then be used as an in-game item (a `spear`).
+Crafting recipes refer to a description of the expected inputs and outputs of a particular crafting transaction. In this guide, we will be demonstrating a common gameplay mechanic where a player will exchange consumable base ingredients, i.e. `wood` and `stone`, for a weapon which can then be used as an in-game item (an `axe`). The resulting axe can then be upgraded by crafting with some `crafting gold` to enchance the axe to a more rare item.
 
-We will model this example using the preset `ImmutableERC1155`. `ERC1155` contracts allows for semi-fungible tokens that make it ideal for in-game item representations such as consumables, since different amounts of the same token ID can be minted to different players.
+We will model this example using the preset `ImmutableERC1155` (with extension to upgrade by burning some `ERC20` and minting the resulting `ERC721` Golden Axe). `ERC1155` contracts allows for semi-fungible tokens that make it ideal for in-game item representations such as consumables, since different amounts of the same token ID can be minted to different players.
 
 Our example crafting recipe can be defined in non-technical terms as:
 
-Player spends `10 wood` and `2 metal` and receives `1 spear`
+Player spends `10 wood` and `2 stone` and receives `1 axe`
 
 Our `ERC1155` contract will be modelled as such:
 
 - token ID of `1` represents wood
 - token ID of `2` represents metal
-- token ID of `3` represents spear
+- token ID of `3` represents axe
 
 This translates to an atomic crafting transaction in which the following should occur:
 
 - Player burns 10 of token ID `1` on `ERC1155` contract
 - Player burns 2 of token ID `2` on `ERC1155` contract
 - Game mints 1 of token ID `3` on `ERC1155` contract to Player
+
+Afterwards the player can spend `5 gold` and `1 axe` to receive `1 golden axe`
+- Player burns token ID `3` of the `ERC1155` contract
+- Player burns `5` tokens of the `ERC20` contract
+- Game mints 1 `ERC721` token to the Player
 
 ## Getting Started
 
@@ -98,5 +103,5 @@ Open your browser and navigate to `http://localhost:3001` to see the client in a
 
 1. Login with Passport
 2. Click on the `Execute` on `Craft wood` recipe to receive 10 wood
-3. Click on the `Execute` on `Craft metal` recipe to receive 2 metal
-4. Click on the `Execute` on `Craft spear` recipe to craft 1 spear using 10 wood and 2 metal
+3. Click on the `Execute` on `Craft stone` recipe to receive 2 stone
+4. Click on the `Execute` on `Craft axe` recipe to craft 1 axe using 10 wood and 2 stone

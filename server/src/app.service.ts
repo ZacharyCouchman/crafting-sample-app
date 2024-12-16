@@ -145,7 +145,7 @@ export class AppService {
         }
         case 'ERC1155': {
           calls.push({
-            target: input.address, //process.env.COLLECTION_ADDRESS as `0x${string}`,
+            target: input.address,
             functionSignature: 'burn(address,uint256,uint256)',
             functionArgs: [
               playerAddress.toString(),
