@@ -167,9 +167,9 @@ export function useBalanceQuery({
   const { blockchainDataClient } = useImmutableProvider();
   const { web3Provider, walletAddress } = usePassportProvider();
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['balances'],
-    refetchInterval: 1000 * 10,
+    refetchInterval: 1000 * 5,
     queryFn: async () => {
       const token = await blockchainDataClient.getToken({
         chainName: 'imtbl-zkevm-testnet',
@@ -185,9 +185,12 @@ export function useBalanceQuery({
       })
       const balance = BigInt(balanceHex);
 
-      return { token: token.result, balance: balance.toString(), formattedBalance: (balance / BigInt(10 ** (token?.result?.decimals ?? 18))).toString() }
+      return {
+        token: token.result, balance: balance.toString(),
+        formattedBalance: (balance / BigInt(10 ** (token?.result?.decimals ?? 18))).toString()
+      }
     }
   })
 
-  return data;
+  return { data, isLoading };
 }

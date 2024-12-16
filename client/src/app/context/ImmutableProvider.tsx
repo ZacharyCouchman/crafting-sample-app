@@ -1,6 +1,13 @@
-import { config, blockchainData } from "@imtbl/sdk";
+import { config, blockchainData, orderbook } from "@imtbl/sdk";
 import { createContext, useContext, useMemo } from "react";
 
+const getOrderBook = () => {
+  return new orderbook.Orderbook({
+    baseConfig: {
+      environment: config.Environment.SANDBOX,
+    },
+  });
+}
 const getBlockchainData = () => {
   return new blockchainData.BlockchainData({
     baseConfig: {
@@ -16,8 +23,10 @@ const ImmutableContext = createContext<{
 export function ImmutableProvider({ children }: { children: JSX.Element | JSX.Element[] }) {
   const providerValues = useMemo(() => {
     const blockchainDataClient = getBlockchainData();
+    const orderbook = getOrderBook();
     return {
       blockchainDataClient,
+      orderbook
     };
   }, []);
 

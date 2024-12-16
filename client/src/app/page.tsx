@@ -40,7 +40,6 @@ export default function Home() {
               <Inventory collection={collections.find((col) => col.type === 'ERC721')!} heading="Rare items" />
               </Box>
             </Box>
-            
           </>
         )}
       </Box>
